@@ -29,6 +29,7 @@ fun NewsScreen(viewmodel: Lazy<NewsViewModel>) {
         val uiState = viewmodel.value.uiState
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            containerColor = LocalAppColors.current.bgElevation0,
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
