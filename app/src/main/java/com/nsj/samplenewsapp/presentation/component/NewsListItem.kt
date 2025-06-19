@@ -101,7 +101,7 @@ fun NewsListItem(listOfImages: List<NewsArticle>, scrollState: LazyListState) {
                                 text = item.title,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = LocalAppColors.current.textPrimaryStrong,
+                                color = LocalAppColors.current.textHighEmphasis,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
                                 modifier = Modifier.clickable(onClick = onTitleClick)
