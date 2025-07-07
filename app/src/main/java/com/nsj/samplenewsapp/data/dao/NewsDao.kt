@@ -23,4 +23,7 @@ interface NewsDao {
 
     @Query("DELETE FROM NewsEntity")
     suspend fun clearAll()
+
+    @Query("UPDATE NewsEntity SET fullHtmlBody = :html WHERE url = :url")
+    suspend fun updateFullHtmlBodyByUrl(url: String, html: String)
 }

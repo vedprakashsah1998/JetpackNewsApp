@@ -10,13 +10,18 @@ fun NewsEntity.toDomain(): NewsArticle {
         description = description,
         url = url,
         imageUrl = imageUrl,
-        publishedAt = publishedAt
+        publishedAt = publishedAt,
+        content = content,
+        fullHtmlBody = fullHtmlBody
     )
 }
+
 fun ArticleDto.toEntity(): NewsEntity = NewsEntity(
     url = url,
     title = title,
     description = description,
     imageUrl = urlToImage,
-    publishedAt = publishedAt
+    publishedAt = publishedAt,
+    content = content,
+    fullHtmlBody = ""
 )

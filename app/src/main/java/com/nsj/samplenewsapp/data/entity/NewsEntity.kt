@@ -9,5 +9,7 @@ data class NewsEntity(
     val title: String,
     val description: String?,
     val imageUrl: String?,
-    val publishedAt: String
+    val publishedAt: String,
+    val content: String?,
+    val fullHtmlBody: String?
 )

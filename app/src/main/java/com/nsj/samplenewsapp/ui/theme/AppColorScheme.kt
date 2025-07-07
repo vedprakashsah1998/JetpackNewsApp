@@ -160,7 +160,7 @@ class AppColorScheme(
 
     val bgElevation0: Color, // 0xFFFFFFFF 0xFF1D1C1C
     val ambientColor: Color,
-    val spotColor: Color
+    val imgBgColor: Color
 
 )
 
@@ -301,7 +301,7 @@ val lightColorScheme: AppColorScheme = AppColorScheme(
     componentsDividerLargeBg = qt_componentsDividerLargeBg,
     bgElevation0 = qt_bg_elevation_0,
     ambientColor = qt_light_ambientColor,
-    spotColor = qt_light_spotColor
+    imgBgColor = qt_dark_text_lowEmphasis
 )
 
 val darkColorScheme: AppColorScheme = AppColorScheme(
@@ -438,5 +438,5 @@ val darkColorScheme: AppColorScheme = AppColorScheme(
     componentsDividerLargeBg = qt_dark_componentsDividerLargeBg,
     bgElevation0 = qt_dark_bg_elevation_0,
     ambientColor = qt_dark_ambientColor,
-    spotColor = qt_dark_spotColor
+    imgBgColor = qt_text_lowEmphasis
 )

@@ -18,8 +18,10 @@ data class NewsArticle(
     val description: String?,
     val url: String,
     val imageUrl: String?,
-    val publishedAt: String
-): Parcelable {
+    val publishedAt: String,
+    val content: String?,
+    val fullHtmlBody: String?
+) : Parcelable {
     val formattedDate: String
         get() = try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

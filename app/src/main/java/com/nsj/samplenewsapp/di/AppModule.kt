@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.Strictness
 import com.nsj.samplenewsapp.data.dao.NewsDao
 import com.nsj.samplenewsapp.data.database.NewsDatabase
 import com.nsj.samplenewsapp.data.network.NewsApiService
@@ -44,7 +45,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun getGson(): Gson = GsonBuilder().serializeNulls().setLenient().create()
+    fun getGson(): Gson = GsonBuilder().serializeNulls().setStrictness(Strictness.LENIENT).create()
 
 
     @Singleton

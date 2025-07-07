@@ -16,17 +16,24 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
 import com.nsj.samplenewsapp.presentation.component.NewsListItem
 import com.nsj.samplenewsapp.presentation.viewmodels.NewsViewModel
+import com.nsj.samplenewsapp.presentation.viewmodels.SharedNewsViewModel
 import com.nsj.samplenewsapp.ui.theme.LocalAppColors
 import com.nsj.samplenewsapp.ui.theme.SampleNewsAppTheme
+import com.nsj.samplenewsapp.utils.NEWS_DETAIL_SCREEN
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewsScreen(viewmodel: Lazy<NewsViewModel>) {
+fun NewsScreen(
+    viewmodel: NewsViewModel, navController: NavController,
+    sharedViewModel: SharedNewsViewModel
+) {
+
     SampleNewsAppTheme {
         val scrollState = rememberLazyListState()
-        val uiState = viewmodel.value.uiState
+        val uiState = viewmodel.uiState
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = LocalAppColors.current.bgElevation0,
@@ -62,7 +69,10 @@ fun NewsScreen(viewmodel: Lazy<NewsViewModel>) {
                 Text(text = uiState.error)
             } else {
                 Box(modifier = Modifier.padding(innerPadding)) {
-                    NewsListItem(uiState.articles, scrollState)
+                    NewsListItem(uiState.articles, scrollState, onItemClick = { article ->
+                        sharedViewModel.selectedArticle = article
+                        navController.navigate(NEWS_DETAIL_SCREEN)
+                    })
                 }
 
             }

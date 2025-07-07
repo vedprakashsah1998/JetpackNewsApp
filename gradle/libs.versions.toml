@@ -1,7 +1,8 @@
 [versions]
-agp = "8.10.1"
+agp = "8.11.0"
 browser = "1.8.0"
 coilCompose = "3.2.0"
+jsoup = "1.21.1"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -14,9 +15,10 @@ kspVersion = "2.0.21-1.0.25"
 hiltVersion = "2.51.1"
 arch_version = "2.9.1"
 hiltNavigationCompose = "1.2.0"
+palette = "1.0.0"
 roomRuntime = "2.7.2"
-gson = "2.11.0"
-retrofitVersion = "2.11.0"
+gson = "2.13.1"
+retrofitVersion = "3.0.0"
 okhttp = "4.12.0"
 loggingInterceptor = "4.12.0"
 
@@ -24,11 +26,13 @@ loggingInterceptor = "4.12.0"
 [libraries]
 androidx-browser = { module = "androidx.browser:browser", version.ref = "browser" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-palette = { module = "androidx.palette:palette", version.ref = "palette" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofitVersion" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "loggingInterceptor" }

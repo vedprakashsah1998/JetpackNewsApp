@@ -89,5 +89,8 @@ dependencies {
     implementation(libs.coil.network.okhttp)
     implementation (libs.androidx.browser)
 
+    implementation(libs.androidx.palette)
+
+    implementation(libs.jsoup)
 
 }

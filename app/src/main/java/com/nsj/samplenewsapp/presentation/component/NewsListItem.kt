@@ -1,5 +1,7 @@
 package com.nsj.samplenewsapp.presentation.component
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +18,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.rememberOverscrollEffect
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -26,12 +30,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -42,11 +53,28 @@ import com.nsj.samplenewsapp.ui.theme.LocalAppColors
 import com.nsj.samplenewsapp.utils.CustomTabHelper
 
 @Composable
-fun NewsListItem(listOfImages: List<NewsArticle>, scrollState: LazyListState) {
+fun NewsListItem(
+    listOfImages: List<NewsArticle>,
+    scrollState: LazyListState,
+    onItemClick: (NewsArticle) -> Unit,
+
+    ) {
+
+
     val context = LocalContext.current
+    val overscrollEffect = rememberOverscrollEffect()
+    val isPressed = remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed.value) 0.97f else 1f,
+        animationSpec = tween(150)
+    )
+    val haptic = LocalHapticFeedback.current
+
     LazyColumn(
         state = scrollState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .overscroll(overscrollEffect),
         contentPadding = PaddingValues(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -65,14 +93,32 @@ fun NewsListItem(listOfImages: List<NewsArticle>, scrollState: LazyListState) {
             ElevatedCard(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(150.dp),
+                    .height(150.dp)
+                    .graphicsLayer {
+                        scaleX = scale
+                        scaleY = scale
+                        // Optional slight Y translation to simulate iOS bounce
+                        translationY = if (scale < 1f) 2f else 0f
+                    }
+                    .pointerInteropFilter {
+                        when (it.action) {
+                            android.view.MotionEvent.ACTION_DOWN -> isPressed.value = true
+                            android.view.MotionEvent.ACTION_UP,
+                            android.view.MotionEvent.ACTION_CANCEL -> isPressed.value = false
+                        }
+                        false
+                    },
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 4.dp
                 ),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.elevatedCardColors(containerColor = LocalAppColors.current.bgCard),
             ) {
-                Box(modifier = Modifier.fillMaxSize().background(LocalAppColors.current.bgCard)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(LocalAppColors.current.bgCard)
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxSize()
@@ -81,15 +127,38 @@ fun NewsListItem(listOfImages: List<NewsArticle>, scrollState: LazyListState) {
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
 
-                        AsyncImage(
-                            model = item.imageUrl,
-                            contentDescription = "News Image",
-                            contentScale = ContentScale.Crop,
+                        Box(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
                                 .clip(RoundedCornerShape(14.dp))
-                        )
+                        ) {
+                            AsyncImage(
+                                model = item.imageUrl,
+                                contentDescription = "News Image",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .clip(RoundedCornerShape(14.dp))
+                            )
+
+                            // Overlay the gradient from bottom to top
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                LocalAppColors.current.imgBgColor,
+                                                Color.Transparent  // Transparent at top
+                                            ),
+                                            startY = Float.POSITIVE_INFINITY,
+                                            endY = 0f
+                                        )
+                                    )
+                            )
+                        }
+
 
                         Column(
                             modifier = Modifier
@@ -104,7 +173,12 @@ fun NewsListItem(listOfImages: List<NewsArticle>, scrollState: LazyListState) {
                                 color = LocalAppColors.current.textHighEmphasis,
                                 maxLines = 2,
                                 overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.clickable(onClick = onTitleClick)
+                                modifier = Modifier.clickable(onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    onItemClick(item)
+//                                    onTitleClick()
+
+                                })
                             )
 
 
