@@ -20,7 +20,8 @@ data class NewsArticle(
     val imageUrl: String?,
     val publishedAt: String,
     val content: String?,
-    val fullHtmlBody: String?
+    val fullHtmlBody: String?,
+    val sourceId: String?
 ) : Parcelable {
     val formattedDate: String
         get() = try {

@@ -7,7 +7,7 @@ import javax.inject.Inject
 class GetNewsUseCase @Inject constructor(
     private val repository: NewsRepository
 ) {
-    suspend operator fun invoke(country: String): List<NewsArticle> {
-        return repository.getTopHeadlines(country)
+    suspend operator fun invoke(): List<NewsArticle> {
+        return repository.getTopHeadlines()
     }
 }

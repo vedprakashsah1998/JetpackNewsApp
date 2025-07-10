@@ -1,13 +1,13 @@
 package com.nsj.samplenewsapp.presentation.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nsj.samplenewsapp.domain.model.NewsArticle
 import com.nsj.samplenewsapp.domain.usecase.GetNewsUseCase
-import com.nsj.samplenewsapp.presentation.NewsUiState
+import com.nsj.samplenewsapp.utils.Outcome
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,21 +15,23 @@ import javax.inject.Inject
 class NewsViewModel @Inject constructor(
     private val getNewsUseCase: GetNewsUseCase
 ) : ViewModel() {
-    var uiState by mutableStateOf(NewsUiState())
-        private set
+
+    private val _uiStateFlow: MutableStateFlow<Outcome<List<NewsArticle>>> =
+        MutableStateFlow(Outcome.Progress(true))
+    val uiStateFlow: StateFlow<Outcome<List<NewsArticle>>> =
+        _uiStateFlow
 
     init {
-        fetchNews("us")
+        fetchNews()
     }
 
-    private fun fetchNews(country: String) {
+    fun fetchNews() {
         viewModelScope.launch {
-            uiState = uiState.copy(isLoading = true)
             try {
-                val articles = getNewsUseCase(country)
-                uiState = uiState.copy(articles = articles, isLoading = false)
+                val articles = getNewsUseCase()
+                _uiStateFlow.value = Outcome.Success(articles)
             } catch (e: Exception) {
-                uiState = uiState.copy(error = e.message, isLoading = false)
+                _uiStateFlow.value = Outcome.Failure(e)
             }
         }
     }

@@ -57,8 +57,8 @@ fun NewsListItem(
     listOfImages: List<NewsArticle>,
     scrollState: LazyListState,
     onItemClick: (NewsArticle) -> Unit,
-
-    ) {
+    from: String
+) {
 
 
     val context = LocalContext.current
@@ -69,149 +69,289 @@ fun NewsListItem(
         animationSpec = tween(150)
     )
     val haptic = LocalHapticFeedback.current
+    if (from == "Detail") {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+        ) {
+            listOfImages.forEach { item ->
 
-    LazyColumn(
-        state = scrollState,
-        modifier = Modifier
-            .fillMaxSize()
-            .overscroll(overscrollEffect),
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
-        items(items = listOfImages, key = { it.url }) { item ->
-            val onTitleClick = remember(item.url) {
-                {
-                    CustomTabHelper.openCustomTab(context, item.url)
-                }
-            }
-            val descriptionText by remember(item.description) {
-                derivedStateOf {
-                    item.description ?: "No description available."
-                }
-            }
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(150.dp)
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        // Optional slight Y translation to simulate iOS bounce
-                        translationY = if (scale < 1f) 2f else 0f
+                val descriptionText by remember(item.description) {
+                    derivedStateOf {
+                        item.description ?: "No description available."
                     }
-                    .pointerInteropFilter {
-                        when (it.action) {
-                            android.view.MotionEvent.ACTION_DOWN -> isPressed.value = true
-                            android.view.MotionEvent.ACTION_UP,
-                            android.view.MotionEvent.ACTION_CANCEL -> isPressed.value = false
-                        }
-                        false
-                    },
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 4.dp
-                ),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = LocalAppColors.current.bgCard),
-            ) {
-                Box(
+                }
+                ElevatedCard(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .background(LocalAppColors.current.bgCard)
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            // Optional slight Y translation to simulate iOS bounce
+                            translationY = if (scale < 1f) 2f else 0f
+                        }
+                        .pointerInteropFilter {
+                            when (it.action) {
+                                android.view.MotionEvent.ACTION_DOWN -> isPressed.value = true
+                                android.view.MotionEvent.ACTION_UP,
+                                android.view.MotionEvent.ACTION_CANCEL -> isPressed.value = false
+                            }
+                            false
+                        },
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 4.dp
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = LocalAppColors.current.bgCard),
                 ) {
-                    Row(
+                    Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            .background(LocalAppColors.current.bgCard)
                     ) {
-
-                        Box(
+                        Row(
                             modifier = Modifier
-                                .weight(1f)
-                                .fillMaxHeight()
-                                .clip(RoundedCornerShape(14.dp))
+                                .fillMaxSize()
+                                .padding(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            AsyncImage(
-                                model = item.imageUrl,
-                                contentDescription = "News Image",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .matchParentSize()
-                                    .clip(RoundedCornerShape(14.dp))
-                            )
 
-                            // Overlay the gradient from bottom to top
                             Box(
                                 modifier = Modifier
-                                    .matchParentSize()
-                                    .background(
-                                        Brush.verticalGradient(
-                                            colors = listOf(
-                                                LocalAppColors.current.imgBgColor,
-                                                Color.Transparent  // Transparent at top
-                                            ),
-                                            startY = Float.POSITIVE_INFINITY,
-                                            endY = 0f
-                                        )
-                                    )
-                            )
-                        }
-
-
-                        Column(
-                            modifier = Modifier
-                                .weight(2f)
-                                .fillMaxHeight(),
-                            verticalArrangement = Arrangement.SpaceAround
-                        ) {
-                            Text(
-                                text = item.title,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = LocalAppColors.current.textHighEmphasis,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.clickable(onClick = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    onItemClick(item)
-//                                    onTitleClick()
-
-                                })
-                            )
-
-
-                            Text(
-                                text = descriptionText,
-                                fontSize = 13.sp,
-                                color = LocalAppColors.current.textMediumEmphasis,
-                                maxLines = 3,
-                                overflow = TextOverflow.Ellipsis
-                            )
-
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(14.dp))
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.DateRange,
-                                    contentDescription = "Date",
-                                    tint = LocalAppColors.current.textLowEmphasis,
-                                    modifier = Modifier.size(14.dp)
+                                AsyncImage(
+                                    model = item.imageUrl,
+                                    contentDescription = "News Image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .clip(RoundedCornerShape(14.dp))
                                 )
-                                Text(
-                                    text = item.formattedDate,
-                                    fontSize = 11.sp,
-                                    color = LocalAppColors.current.textLowEmphasis
+
+                                // Overlay the gradient from bottom to top
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .background(
+                                            Brush.verticalGradient(
+                                                colors = listOf(
+                                                    LocalAppColors.current.imgBgColor,
+                                                    Color.Transparent
+                                                ),
+                                                startY = Float.POSITIVE_INFINITY,
+                                                endY = 0f
+                                            )
+                                        )
                                 )
                             }
-                        }
-                    }
 
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .fillMaxHeight(),
+                                verticalArrangement = Arrangement.SpaceAround
+                            ) {
+                                Text(
+                                    text = item.title,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = LocalAppColors.current.textHighEmphasis,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.clickable(onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onItemClick(item)
+//                                    onTitleClick()
+
+                                    })
+                                )
+
+
+                                Text(
+                                    text = descriptionText,
+                                    fontSize = 13.sp,
+                                    color = LocalAppColors.current.textMediumEmphasis,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Date",
+                                        tint = LocalAppColors.current.textLowEmphasis,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = item.formattedDate,
+                                        fontSize = 11.sp,
+                                        color = LocalAppColors.current.textLowEmphasis
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    } else {
+        LazyColumn(
+            state = scrollState,
+            modifier = Modifier
+                .fillMaxSize()
+                .overscroll(overscrollEffect),
+            contentPadding = PaddingValues(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+
+            items(items = listOfImages, key = { it.url }) { item ->
+                val onTitleClick = remember(item.url) {
+                    {
+                        CustomTabHelper.openCustomTab(context, item.url)
+                    }
+                }
+                val descriptionText by remember(item.description) {
+                    derivedStateOf {
+                        item.description ?: "No description available."
+                    }
+                }
+                ElevatedCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp)
+                        .graphicsLayer {
+                            scaleX = scale
+                            scaleY = scale
+                            // Optional slight Y translation to simulate iOS bounce
+                            translationY = if (scale < 1f) 2f else 0f
+                        }
+                        .pointerInteropFilter {
+                            when (it.action) {
+                                android.view.MotionEvent.ACTION_DOWN -> isPressed.value = true
+                                android.view.MotionEvent.ACTION_UP,
+                                android.view.MotionEvent.ACTION_CANCEL -> isPressed.value = false
+                            }
+                            false
+                        },
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 4.dp
+                    ),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.elevatedCardColors(containerColor = LocalAppColors.current.bgCard),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(LocalAppColors.current.bgCard)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape(14.dp))
+                            ) {
+                                AsyncImage(
+                                    model = item.imageUrl,
+                                    contentDescription = "News Image",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .clip(RoundedCornerShape(14.dp))
+                                )
+
+                                // Overlay the gradient from bottom to top
+                                Box(
+                                    modifier = Modifier
+                                        .matchParentSize()
+                                        .background(
+                                            Brush.verticalGradient(
+                                                colors = listOf(
+                                                    LocalAppColors.current.imgBgColor,
+                                                    Color.Transparent
+                                                ),
+                                                startY = Float.POSITIVE_INFINITY,
+                                                endY = 0f
+                                            )
+                                        )
+                                )
+                            }
+
+
+                            Column(
+                                modifier = Modifier
+                                    .weight(2f)
+                                    .fillMaxHeight(),
+                                verticalArrangement = Arrangement.SpaceAround
+                            ) {
+                                Text(
+                                    text = item.title,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = LocalAppColors.current.textHighEmphasis,
+                                    maxLines = 2,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.clickable(onClick = {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onItemClick(item)
+//                                    onTitleClick()
+
+                                    })
+                                )
+
+
+                                Text(
+                                    text = descriptionText,
+                                    fontSize = 13.sp,
+                                    color = LocalAppColors.current.textMediumEmphasis,
+                                    maxLines = 3,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DateRange,
+                                        contentDescription = "Date",
+                                        tint = LocalAppColors.current.textLowEmphasis,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                    Text(
+                                        text = item.formattedDate,
+                                        fontSize = 11.sp,
+                                        color = LocalAppColors.current.textLowEmphasis
+                                    )
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         }
     }
+
 }
