@@ -72,41 +72,6 @@ fun NewsScreen(
                     from = "Main")
 
             }
-
-            /* when (uiState) {
-                 is Outcome.Progress -> {
-                     Box(
-                         modifier = Modifier
-                             .fillMaxSize()
-                             .padding(innerPadding),
-                         contentAlignment = Alignment.Center
-                     ) {
-                         CircularProgressIndicator()
-                     }
-                 }
-
-                 is Outcome.Success -> {
-                     Box(modifier = Modifier.padding(innerPadding)) {
-                         NewsListItem(
-                             uiState.data,
-                             scrollState,
-                             onItemClick = { article ->
-                                 sharedViewModel.selectedArticle = article
-                                 navController.navigate(NEWS_DETAIL_SCREEN)
-                             })
-                     }
-                 }
-
-                 is Outcome.Failure -> {
-                     Text(text = uiState.error.message.toString())
-
-                 }
-
-                 is Outcome.Unknown<*> -> {
-
-                 }
-             }
- */
         }
     }
 
