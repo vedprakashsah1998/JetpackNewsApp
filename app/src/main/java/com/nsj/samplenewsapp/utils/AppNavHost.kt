@@ -1,22 +1,19 @@
 package com.nsj.samplenewsapp.utils
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nsj.samplenewsapp.presentation.NewsScreen
-import com.nsj.samplenewsapp.presentation.screen.NewsDetailScreenScreen
+import com.nsj.samplenewsapp.presentation.screen.NewsDetailScreen
 import com.nsj.samplenewsapp.presentation.viewmodels.NewsViewModel
 import com.nsj.samplenewsapp.presentation.viewmodels.SharedNewsViewModel
 
-@RequiresApi(Build.VERSION_CODES.S)
 @Composable
 fun AppNavHost(
     newsViewModel: NewsViewModel,
-    sharedNewsViewModel: SharedNewsViewModel = viewModel()
+    sharedNewsViewModel: SharedNewsViewModel = hiltViewModel()
 ) {
     val navController = rememberNavController()
 
@@ -30,9 +27,8 @@ fun AppNavHost(
         }
 
         composable(NEWS_DETAIL_SCREEN) {
-            sharedNewsViewModel.selectedArticle?.let {
-                NewsDetailScreenScreen(newsArticle = it, navController)
-            }
+            NewsDetailScreen(sharedNewsViewModel,navController)
+
         }
     }
 }

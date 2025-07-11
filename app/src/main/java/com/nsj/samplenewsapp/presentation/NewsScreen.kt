@@ -67,7 +67,9 @@ fun NewsScreen(
                     scrollState,
                     onItemClick = { article ->
                         sharedViewModel.selectedArticle = article
-                        navController.navigate(NEWS_DETAIL_SCREEN)
+                        navController.navigate(NEWS_DETAIL_SCREEN){
+                            launchSingleTop = true
+                        }
                     },
                     from = "Main")
 

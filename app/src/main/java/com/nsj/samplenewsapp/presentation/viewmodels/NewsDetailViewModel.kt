@@ -35,20 +35,20 @@ class NewsDetailViewModel @Inject constructor(
         _uiStateSourceFlow
 
 
-    fun fetchWebsiteText(article: NewsArticle) {
+    fun fetchWebsiteText(article: NewsArticle?) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val document = Jsoup.connect(article.url).get()
+                val document = Jsoup.connect(article?.url?:"").get()
                 val textContent = document.body().text()
                 _fullText.value = basicExtractiveSummary(textContent)
 
             } catch (e: Exception) {
                 val fullDescValue =
-                    listOfNotNull(article.content, article.description).joinToString("\n")
+                    listOfNotNull(article?.content, article?.description).joinToString("\n")
                 _fullText.value = fullDescValue
             }
             _uiStateFlow.value = Outcome.Success(_fullText.value)
-            updateNewsDetailUseCase.invoke(article.url, _fullText.value)
+            updateNewsDetailUseCase.invoke(article?.url?:"", _fullText.value)
         }
     }
 

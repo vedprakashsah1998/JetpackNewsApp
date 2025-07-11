@@ -1,8 +1,7 @@
 package com.nsj.samplenewsapp.presentation.screen
 
+import android.annotation.SuppressLint
 import android.app.Activity
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -34,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -52,7 +52,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.nsj.samplenewsapp.domain.model.NewsArticle
@@ -64,31 +63,45 @@ import com.nsj.samplenewsapp.ui.theme.SampleNewsAppTheme
 import com.nsj.samplenewsapp.utils.NEWS_DETAIL_SCREEN
 import com.nsj.samplenewsapp.utils.StateHandler
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@RequiresApi(Build.VERSION_CODES.S) // API 31+
-fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavController) {
+fun NewsDetailScreen(sharedNewsViewModel: SharedNewsViewModel, navController: NavController) {
     val context = LocalContext.current
     val view = LocalView.current
     val viewModel = hiltViewModel<NewsDetailViewModel>()
-    val sharedNewsViewModel: SharedNewsViewModel = viewModel()
-
+    val newsArticle = sharedNewsViewModel.selectedArticle
+    key(newsArticle?.url) {
+        NewsDetailScreenContent(newsArticle, sharedNewsViewModel, navController,viewModel)
+    }
     LaunchedEffect(Unit) {
         val window = (context as Activity).window
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = false
     }
 
-    val sourceIdMain = if (newsArticle.sourceId?.isEmpty() == true) "cnn" else newsArticle.sourceId
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun NewsDetailScreenContent(
+    newsArticle: NewsArticle?,
+    sharedNewsViewModel: SharedNewsViewModel,
+    navController: NavController,
+    viewModel: NewsDetailViewModel
+) {
+    val sourceIdMain = if (newsArticle?.sourceId?.isEmpty() == true) "cnn" else newsArticle?.sourceId
 
     val websiteText by viewModel.fullText.collectAsState()
-    LaunchedEffect(newsArticle.url) {
+    LaunchedEffect(newsArticle?.url) {
         viewModel.fetchWebsiteText(newsArticle)
         viewModel.fetchWebSourceNews(sourceIdMain ?: "cnn")
     }
     val uiState = viewModel.uiStateSourceFlow.collectAsState().value
 
-    val description = newsArticle.fullHtmlBody.takeUnless { it.isNullOrEmpty() } ?: websiteText
+    val description = newsArticle?.fullHtmlBody.takeUnless { it.isNullOrEmpty() } ?: websiteText
+
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val maxImageHeight = 250.dp
@@ -162,7 +175,7 @@ fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavControlle
                     ),
                     modifier = Modifier
                         .background(Color.Transparent),
-                    )
+                )
             },
 
             content = {innerPadding->
@@ -170,7 +183,7 @@ fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavControlle
 
                 Box {
                     AsyncImage(
-                        model = newsArticle.imageUrl,
+                        model = newsArticle?.imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -206,7 +219,7 @@ fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavControlle
 
                     item {
                         Text(
-                            text = newsArticle.title,
+                            text = newsArticle?.title.toString(),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = localColor.textHighEmphasis,
@@ -224,7 +237,7 @@ fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavControlle
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                text = newsArticle.formattedDate,
+                                text = newsArticle?.formattedDate.toString(),
                                 fontSize = 12.sp,
                                 color = localColor.textLowEmphasis
                             )
@@ -251,14 +264,17 @@ fun NewsDetailScreenScreen(newsArticle: NewsArticle, navController: NavControlle
                             outcome = uiState,
                             modifier = Modifier
                                 .fillMaxSize(),
-                            onRetry = { viewModel.fetchWebSourceNews(newsArticle.sourceId ?: "cnn") }
+                            onRetry = { viewModel.fetchWebSourceNews(newsArticle?.sourceId ?: "cnn") }
                         ) { articles ->
                             NewsListItem(
                                 articles,
                                 scrollState,
                                 onItemClick = { article ->
                                     sharedNewsViewModel.selectedArticle = article
-                                    navController.navigate(NEWS_DETAIL_SCREEN)
+                                    navController.navigate(NEWS_DETAIL_SCREEN){
+                                        launchSingleTop = true
+
+                                    }
                                 },
                                 from = "Detail"
                             )
