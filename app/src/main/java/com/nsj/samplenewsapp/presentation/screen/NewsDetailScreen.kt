@@ -3,8 +3,11 @@ package com.nsj.samplenewsapp.presentation.screen
 import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -106,8 +109,15 @@ fun NewsDetailScreenContent(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val maxImageHeight = 250.dp
     val collapseFraction = scrollBehavior.state.collapsedFraction
-    val imageHeight = lerp(maxImageHeight, 0.dp, collapseFraction)
-
+    val targetImageHeight = lerp(maxImageHeight, 0.dp, collapseFraction)
+    val imageHeight by animateDpAsState(
+        targetValue = targetImageHeight,
+        animationSpec = tween(
+            durationMillis = 300,
+            easing = FastOutSlowInEasing
+        ),
+        label = "ImageHeightAnimation"
+    )
     SampleNewsAppTheme {
         val localColor = LocalAppColors.current
 
@@ -189,6 +199,10 @@ fun NewsDetailScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(imageHeight)
+                            .graphicsLayer{
+                                translationY = collapseFraction * 50f
+                                alpha = 1f - (collapseFraction * 0.5f)
+                            }
                     )
                 }
 
