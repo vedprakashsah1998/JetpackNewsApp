@@ -37,8 +37,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -98,18 +96,12 @@ fun NewsDetailScreenContent(
 ) {
     val sourceIdMain = if (newsArticle?.sourceId?.isEmpty() == true) "cnn" else newsArticle?.sourceId
 
-    val websiteText by viewModel.fullText.collectAsState()
     LaunchedEffect(newsArticle?.url) {
         viewModel.fetchWebsiteText(newsArticle)
         viewModel.fetchWebSourceNews(sourceIdMain ?: "cnn")
     }
     val uiState = viewModel.uiStateSourceFlow.collectAsState().value
-
-    val description by remember(newsArticle?.url) {
-        mutableStateOf(
-            newsArticle?.fullHtmlBody.takeUnless { it.isNullOrEmpty() } ?: websiteText
-        )
-    }
+    val websiteText by viewModel.fullText.collectAsState()
 
 
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -265,7 +257,7 @@ fun NewsDetailScreenContent(
 
 
                         Text(
-                            text = description,
+                            text = websiteText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = localColor.textMediumEmphasis,

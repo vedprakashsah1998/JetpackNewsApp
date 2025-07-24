@@ -12,7 +12,6 @@ fun NewsEntity.toDomain(): NewsArticle {
         imageUrl = imageUrl,
         publishedAt = publishedAt,
         content = content,
-        fullHtmlBody = fullHtmlBody,
         sourceId = sourceId
     )
 }
@@ -24,7 +23,6 @@ fun ArticleDto.toEntity(): NewsEntity = NewsEntity(
     imageUrl = urlToImage,
     publishedAt = publishedAt,
     content = content,
-    fullHtmlBody = "",
     sourceId = source.id?:""
 )
 
@@ -36,7 +34,6 @@ fun ArticleDto.toDomain(): NewsArticle {
         imageUrl = urlToImage,
         publishedAt = publishedAt,
         content = content,
-        fullHtmlBody = "",
         sourceId = source?.id ?: ""
     )
 }
