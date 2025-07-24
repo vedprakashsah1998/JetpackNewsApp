@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nsj.samplenewsapp.domain.model.NewsArticle
 import com.nsj.samplenewsapp.domain.usecase.NewsRepoSourcesDetailUseCase
-import com.nsj.samplenewsapp.domain.usecase.UpdateNewsDetailUseCase
 import com.nsj.samplenewsapp.utils.Outcome
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,16 +16,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsDetailViewModel @Inject constructor(
-    val updateNewsDetailUseCase: UpdateNewsDetailUseCase,
     val newsRepoSourcesUseCase: NewsRepoSourcesDetailUseCase
 ) : ViewModel() {
     private val _fullText = MutableStateFlow("")
     val fullText = _fullText.asStateFlow()
-
-    private val _uiStateFlow: MutableStateFlow<Outcome<String>> =
-        MutableStateFlow(Outcome.Progress(true))
-    val uiStateFlow: StateFlow<Outcome<String>> =
-        _uiStateFlow
 
 
     private val _uiStateSourceFlow: MutableStateFlow<Outcome<List<NewsArticle>>> =
@@ -38,7 +31,7 @@ class NewsDetailViewModel @Inject constructor(
     fun fetchWebsiteText(article: NewsArticle?) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val document = Jsoup.connect(article?.url?:"").get()
+                val document = Jsoup.connect(article?.url ?: "").get()
                 val textContent = document.body().text()
                 _fullText.value = basicExtractiveSummary(textContent)
 
@@ -47,8 +40,6 @@ class NewsDetailViewModel @Inject constructor(
                     listOfNotNull(article?.content, article?.description).joinToString("\n")
                 _fullText.value = fullDescValue
             }
-            _uiStateFlow.value = Outcome.Success(_fullText.value)
-            updateNewsDetailUseCase.invoke(article?.url?:"", _fullText.value)
         }
     }
 
@@ -66,10 +57,10 @@ class NewsDetailViewModel @Inject constructor(
     private fun basicExtractiveSummary(text: String, maxWords: Int = 100): String {
         if (text.isBlank()) return ""
 
-        val sentences = text.split(Regex("(?<=[.!?])\\s+")) // Split by sentence endings
+        val sentences = text.split(Regex("(?<=[.!?])\\s+"))
         val scoredSentences = sentences.map { sentence ->
             val wordCount = sentence.split(Regex("\\s+")).size
-            val score = sentence.length.toDouble() / wordCount // crude importance score
+            val score = sentence.length.toDouble() / wordCount
             sentence to score
         }
 

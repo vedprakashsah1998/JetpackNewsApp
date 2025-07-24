@@ -9,10 +9,8 @@ import com.nsj.samplenewsapp.data.dao.NewsDao
 import com.nsj.samplenewsapp.data.database.NewsDatabase
 import com.nsj.samplenewsapp.data.network.NewsApiService
 import com.nsj.samplenewsapp.data.network.OfflineInterceptor
-import com.nsj.samplenewsapp.data.repositoryImpl.NewsRepDaoImpl
 import com.nsj.samplenewsapp.data.repositoryImpl.NewsRepoSourcesImpl
 import com.nsj.samplenewsapp.data.repositoryImpl.NewsRepositoryImpl
-import com.nsj.samplenewsapp.domain.repository.NewsRepoDao
 import com.nsj.samplenewsapp.domain.repository.NewsRepoSources
 import com.nsj.samplenewsapp.domain.repository.NewsRepository
 import com.nsj.samplenewsapp.utils.BASE_URL
@@ -102,14 +100,6 @@ object AppModule {
         dao: NewsDao
     ): NewsRepository {
         return NewsRepositoryImpl(api, dao)
-    }
-
-
-    @Provides
-    fun provideNewsRepoDao(
-        dao: NewsDao
-    ): NewsRepoDao {
-        return NewsRepDaoImpl(dao)
     }
 
     @Provides
