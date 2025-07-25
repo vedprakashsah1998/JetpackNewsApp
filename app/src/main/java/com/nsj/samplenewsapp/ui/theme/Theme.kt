@@ -16,8 +16,6 @@ val LocalAppColors = staticCompositionLocalOf { lightColorScheme }
 @Composable
 fun SampleNewsAppTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
