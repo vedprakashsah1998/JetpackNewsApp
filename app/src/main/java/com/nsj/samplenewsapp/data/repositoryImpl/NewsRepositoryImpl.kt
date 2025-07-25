@@ -19,7 +19,7 @@ class NewsRepositoryImpl(
 
             val existingUrls = dao.getAllArticleUrls().toSet()
 
-            if (existingUrls.isEmpty()) {
+          /*  if (existingUrls.isEmpty()) {
                 // DB empty: insert all one-by-one
                 remoteEntities.forEach { dao.insertArticle(it) }
             } else {
@@ -29,6 +29,13 @@ class NewsRepositoryImpl(
                         dao.insertArticle(entity)
                     }
                 }
+            }*/
+            if (existingUrls.isEmpty()) {
+                // Insert one by one when DB is empty
+                remoteEntities.forEach { dao.insertArticle(it) }
+            } else {
+                // DB has data: upsert to update or add new entries in bulk
+                dao.upsertArticles(remoteEntities)
             }
 
         } catch (e: Exception) {
