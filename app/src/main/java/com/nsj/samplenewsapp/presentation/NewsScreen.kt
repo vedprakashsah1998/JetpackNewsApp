@@ -8,13 +8,13 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
+import com.nsj.samplenewsapp.presentation.component.BaseScaffold
 import com.nsj.samplenewsapp.presentation.component.NewsListItem
 import com.nsj.samplenewsapp.presentation.viewmodels.NewsViewModel
 import com.nsj.samplenewsapp.presentation.viewmodels.SharedNewsViewModel
@@ -29,19 +29,18 @@ fun NewsScreen(
     viewmodel: NewsViewModel, navController: NavController,
     sharedViewModel: SharedNewsViewModel
 ) {
-
+    val scrollState = rememberLazyListState()
+    val uiState = viewmodel.uiStateFlow.collectAsState().value
     SampleNewsAppTheme {
-        val scrollState = rememberLazyListState()
-        val uiState = viewmodel.uiStateFlow.collectAsState().value
-        Scaffold(
+        val localAppColor = LocalAppColors.current
+        BaseScaffold(
             modifier = Modifier.fillMaxSize(),
-            containerColor = LocalAppColors.current.bgElevation0,
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
                         Text(
                             "Trending News",
-                            color = LocalAppColors.current.textHighEmphasis
+                            color = localAppColor.textHighEmphasis
                         )
                     },
                     navigationIcon = {
@@ -50,31 +49,31 @@ fun NewsScreen(
                             contentDescription = "Menu"
                         )
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = LocalAppColors.current.bgBottomNavigation)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = localAppColor.bgBottomNavigation)
                 )
             },
-        ) { innerPadding ->
-
-            StateHandler(
-                outcome = uiState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                onRetry = { viewmodel.fetchNews() }
-            ) { articles ->
-                NewsListItem(
-                    articles,
-                    scrollState,
-                    onItemClick = { article ->
-                        sharedViewModel.selectedArticle = article
-                        navController.navigate(NEWS_DETAIL_SCREEN){
-                            launchSingleTop = true
-                        }
-                    },
-                    from = "Main")
-
-            }
-        }
+            content = { innerPadding ->
+                StateHandler(
+                    outcome = uiState,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    onRetry = { viewmodel.fetchNews() }
+                ) { articles ->
+                    NewsListItem(
+                        articles,
+                        scrollState,
+                        onItemClick = { article ->
+                            sharedViewModel.selectedArticle = article
+                            navController.navigate(NEWS_DETAIL_SCREEN) {
+                                launchSingleTop = true
+                            }
+                        },
+                        from = "Main"
+                    )
+                }
+            },
+        )
     }
 
 }

@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -58,6 +57,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.nsj.samplenewsapp.domain.model.NewsArticle
+import com.nsj.samplenewsapp.presentation.component.BaseScaffold
 import com.nsj.samplenewsapp.presentation.component.NewsListItem
 import com.nsj.samplenewsapp.presentation.viewmodels.NewsDetailViewModel
 import com.nsj.samplenewsapp.presentation.viewmodels.SharedNewsViewModel
@@ -67,7 +67,6 @@ import com.nsj.samplenewsapp.utils.NEWS_DETAIL_SCREEN
 import com.nsj.samplenewsapp.utils.StateHandler
 
 @SuppressLint("UnrememberedGetBackStackEntry")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewsDetailScreen(sharedNewsViewModel: SharedNewsViewModel, navController: NavController) {
     val context = LocalContext.current
@@ -75,15 +74,13 @@ fun NewsDetailScreen(sharedNewsViewModel: SharedNewsViewModel, navController: Na
     val viewModel = hiltViewModel<NewsDetailViewModel>()
     val newsArticle = sharedNewsViewModel.selectedArticle
     key(newsArticle?.url) {
-        NewsDetailScreenContent(newsArticle, sharedNewsViewModel, navController,viewModel)
+        NewsDetailScreenContent(newsArticle, sharedNewsViewModel, navController, viewModel)
     }
     LaunchedEffect(Unit) {
         val window = (context as Activity).window
         WindowCompat.setDecorFitsSystemWindows(window, false)
         WindowInsetsControllerCompat(window, view).isAppearanceLightStatusBars = false
     }
-
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,16 +91,14 @@ fun NewsDetailScreenContent(
     navController: NavController,
     viewModel: NewsDetailViewModel
 ) {
-    val sourceIdMain = if (newsArticle?.sourceId?.isEmpty() == true) "cnn" else newsArticle?.sourceId
-
+    val sourceIdMain =
+        if (newsArticle?.sourceId?.isEmpty() == true) "cnn" else newsArticle?.sourceId
     LaunchedEffect(newsArticle?.url) {
         viewModel.fetchWebsiteText(newsArticle)
         viewModel.fetchWebSourceNews(sourceIdMain ?: "cnn")
     }
     val uiState = viewModel.uiStateSourceFlow.collectAsState().value
     val websiteText by viewModel.fullText.collectAsState()
-
-
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val maxImageHeight = 250.dp
     val collapseFraction = scrollBehavior.state.collapsedFraction
@@ -118,10 +113,8 @@ fun NewsDetailScreenContent(
     )
     SampleNewsAppTheme {
         val localColor = LocalAppColors.current
-
-        Scaffold(
+        BaseScaffold(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-            containerColor = localColor.bgElevation0,
             topBar = {
                 LargeTopAppBar(
                     title = {},
@@ -149,7 +142,6 @@ fun NewsDetailScreenContent(
                                     .size(20.dp)
                             )
                         }
-
                     },
                     actions = {
                         Box(
@@ -185,10 +177,8 @@ fun NewsDetailScreenContent(
                         .background(Color.Transparent),
                 )
             },
-
-            content = {innerPadding->
+            content = { innerPadding ->
                 val scrollState = rememberLazyListState()
-
                 Box {
                     AsyncImage(
                         model = newsArticle?.imageUrl,
@@ -197,13 +187,12 @@ fun NewsDetailScreenContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(imageHeight)
-                            .graphicsLayer{
+                            .graphicsLayer {
                                 translationY = collapseFraction * 50f
                                 alpha = 1f - (collapseFraction * 0.5f)
                             }
                     )
                 }
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -228,7 +217,6 @@ fun NewsDetailScreenContent(
                         bottom = innerPadding.calculateBottomPadding()
                     )
                 ) {
-
                     item {
                         Text(
                             text = newsArticle?.title.toString(),
@@ -254,50 +242,48 @@ fun NewsDetailScreenContent(
                                 color = localColor.textLowEmphasis
                             )
                         }
-
-
                         Text(
                             text = websiteText,
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Normal,
                             color = localColor.textMediumEmphasis,
-                            modifier = Modifier.animateContentSize(
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioLowBouncy,
-                                    stiffness = Spring.StiffnessLow
+                            modifier = Modifier
+                                .animateContentSize(
+                                    animationSpec = spring(
+                                        dampingRatio = Spring.DampingRatioLowBouncy,
+                                        stiffness = Spring.StiffnessLow
+                                    )
                                 )
-                            ).padding(12.dp)
+                                .padding(12.dp)
                         )
                     }
-
-
                     item {
                         StateHandler(
                             outcome = uiState,
                             modifier = Modifier
                                 .fillMaxSize(),
-                            onRetry = { viewModel.fetchWebSourceNews(newsArticle?.sourceId ?: "cnn") }
+                            onRetry = {
+                                viewModel.fetchWebSourceNews(
+                                    newsArticle?.sourceId ?: "cnn"
+                                )
+                            }
                         ) { articles ->
                             NewsListItem(
                                 articles,
                                 scrollState,
                                 onItemClick = { article ->
                                     sharedNewsViewModel.selectedArticle = article
-                                    navController.navigate(NEWS_DETAIL_SCREEN){
+                                    navController.navigate(NEWS_DETAIL_SCREEN) {
                                         launchSingleTop = true
 
                                     }
                                 },
                                 from = "Detail"
                             )
-
                         }
                     }
-
-
                 }
-
-            }
+            },
         )
     }
 }

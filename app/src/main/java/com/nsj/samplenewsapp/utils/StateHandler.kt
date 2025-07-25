@@ -54,7 +54,6 @@ fun <T> StateHandler(
             message = outcome.error.message.orEmpty(),
             onRetry = onRetry
         )
-
         else -> {}
     }
 }
